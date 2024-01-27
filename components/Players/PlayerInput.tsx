@@ -2,27 +2,35 @@ import React, { useState } from "react";
 import { TextInput, Text, View, StyleSheet } from "react-native";
 import Button from "../UI/Button";
 import Colors from "../../utils/colors";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setOuser, setXuser } from "../../redux/player-slice";
 
 interface PlayerInputProps {
   symbol: string;
-  name: string;
 }
 
-const PlayerInput: React.FC<PlayerInputProps> = ({ symbol, name }) => {
-  const [editedPlayerName, setEditedPlayerName] = useState<string>(name);
-    const [isEditing, setIsEditing] = useState<boolean>(false);
-
+const PlayerInput: React.FC<PlayerInputProps> = ({ symbol }) => {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const xUserName = useAppSelector((state) => state.winner.Xuser);
+  const oUserName = useAppSelector((state) => state.winner.Ouser);
   function handleEdit() {
     setIsEditing((editing) => !editing);
   }
 
-  function handleChange(editedName: string){
-    setEditedPlayerName(editedName);
+  function handleChange(editedName: string) {
+    if (symbol === "X") {
+      dispatch(setXuser(editedName));
+    } else if (symbol === "O") {
+      dispatch(setOuser(editedName));
+    }
   }
 
   let playerName = (
     <View style={styles.name}>
-      <Text style={styles.nameText}>{editedPlayerName}</Text>
+      <Text style={styles.nameText}>
+        {symbol === "X" ? xUserName : oUserName}
+      </Text>
     </View>
   );
 
@@ -31,7 +39,7 @@ const PlayerInput: React.FC<PlayerInputProps> = ({ symbol, name }) => {
       <TextInput
         style={styles.input}
         placeholderTextColor={Colors.dark500}
-        defaultValue={editedPlayerName}
+        defaultValue={symbol === "X" ? xUserName : oUserName}
         onChangeText={handleChange}
       />
     );
@@ -70,7 +78,7 @@ const styles = StyleSheet.create({
   },
   nameText: {
     fontSize: 16,
-    color: Colors.primary500
+    color: Colors.primary500,
   },
   input: {
     borderRadius: 4,
